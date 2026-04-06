@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cursor Setup Complete</title>
+  <style>
+    :root {
+      --bg1: #ff8ac4;
+      --bg2: #8be9fd;
+      --bg3: #fce38a;
+      --text-main: #2b2d42;
+      --text-sub: #4a4e69;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.45) 0 18%, transparent 19%),
+        radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.35) 0 14%, transparent 15%),
+        linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+      background-size: cover;
+      color: var(--text-main);
+    }
+
+    .card {
+      width: min(900px, 90vw);
+      text-align: center;
+      padding: 3.2rem 2rem;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow:
+        0 12px 28px rgba(43, 45, 66, 0.2),
+        0 0 0 8px rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(6px);
+      animation: pop 0.8s ease-out;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 4.2rem);
+      line-height: 1.2;
+      letter-spacing: 0.03em;
+      color: #ff4d6d;
+      text-shadow: 0 3px 0 rgba(255, 77, 109, 0.18);
+    }
+
+    p {
+      margin: 1rem 0 0;
+      font-size: clamp(1rem, 2.3vw, 1.4rem);
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Cursorセットアップ完了！</h1>
+    <p>AIと一緒にものづくりを始める準備ができました</p>
+  </main>
+</body>
+</html>
