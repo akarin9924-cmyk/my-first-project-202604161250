@@ -33,9 +33,13 @@ function isOverdue(dueDate: string, done: boolean): boolean {
 }
 
 export default function TodoApp() {
+  const currentYear = String(new Date().getFullYear());
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
   const [dueDate, setDueDate] = useState("");
+  const [dueYear, setDueYear] = useState(currentYear);
+  const [monthDayInput, setMonthDayInput] = useState("");
+  const [isYearEditOpen, setIsYearEditOpen] = useState(false);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [memos, setMemos] = useState<Memo[]>([]);
   const [memoInput, setMemoInput] = useState("");
@@ -100,6 +104,9 @@ export default function TodoApp() {
     setTitle("");
     setPriority("medium");
     setDueDate("");
+    setDueYear(currentYear);
+    setMonthDayInput("");
+    setIsYearEditOpen(false);
   };
 
   const addMemo = () => {
@@ -142,10 +149,55 @@ export default function TodoApp() {
     }
   };
 
-  const handleDueDateTextChange = (value: string) => {
-    // Accept only YYYY-MM-DD style input for stable scheduler behavior.
-    const normalized = value.replace(/[^\d-]/g, "").slice(0, 10);
-    setDueDate(normalized);
+  const parseMonthDayDigits = (monthDayDigits: string): { month: number; day: number } | null => {
+    if (monthDayDigits.length === 4) {
+      return {
+        month: Number(monthDayDigits.slice(0, 2)),
+        day: Number(monthDayDigits.slice(2, 4))
+      };
+    }
+
+    if (monthDayDigits.length === 3) {
+      return {
+        month: Number(monthDayDigits.slice(0, 1)),
+        day: Number(monthDayDigits.slice(1, 3))
+      };
+    }
+
+    return null;
+  };
+
+  const updateDueDateFromParts = (year: string, monthDayDigits: string) => {
+    if (!/^\d{4}$/.test(year)) {
+      setDueDate("");
+      return;
+    }
+
+    const parsed = parseMonthDayDigits(monthDayDigits);
+    if (!parsed) {
+      setDueDate("");
+      return;
+    }
+
+    const { month, day } = parsed;
+    if (month < 1 || month > 12 || day < 1 || day > 31) {
+      setDueDate("");
+      return;
+    }
+
+    setDueDate(`${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
+  };
+
+  const handleMonthDayChange = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 4);
+    setMonthDayInput(digits);
+    updateDueDateFromParts(dueYear, digits);
+  };
+
+  const handleYearChange = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 4);
+    setDueYear(digits);
+    updateDueDateFromParts(digits, monthDayInput);
   };
 
   const renderTodoCard = (todo: Todo) => {
@@ -257,7 +309,19 @@ export default function TodoApp() {
               ref={dateInputRef}
               type="date"
               value={dueDate}
-              onChange={(event) => setDueDate(event.target.value)}
+              onChange={(event) => {
+                const value = event.target.value;
+                setDueDate(value);
+                if (!value) {
+                  setDueYear(currentYear);
+                  setMonthDayInput("");
+                  return;
+                }
+
+                const [year, month, day] = value.split("-");
+                setDueYear(year || currentYear);
+                setMonthDayInput(`${month || ""}${day || ""}`);
+              }}
               className="h-0 w-0 opacity-0"
               tabIndex={-1}
               aria-hidden="true"
@@ -265,13 +329,39 @@ export default function TodoApp() {
             <input
               type="text"
               inputMode="numeric"
-              placeholder="YYYY-MM-DD"
-              value={dueDate}
-              onChange={(event) => handleDueDateTextChange(event.target.value)}
+              placeholder="月日3-4桁 (例: 420 / 0420)"
+              value={monthDayInput}
+              onChange={(event) => handleMonthDayChange(event.target.value)}
               className="min-h-11 flex-1 rounded-lg border border-slate-300 px-3 text-sm"
             />
+            {isYearEditOpen ? (
+              <input
+                type="text"
+                inputMode="numeric"
+                value={dueYear}
+                onChange={(event) => handleYearChange(event.target.value)}
+                className="min-h-11 w-20 rounded-lg border border-slate-300 px-2 text-center text-sm"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsYearEditOpen(true)}
+                className="min-h-11 rounded-lg border border-slate-300 px-2 text-xs text-slate-600"
+              >
+                {dueYear}年
+              </button>
+            )}
             {dueDate && (
-              <button type="button" onClick={() => setDueDate("")} className="rounded border border-slate-300 px-2 py-1 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setDueDate("");
+                  setDueYear(currentYear);
+                  setMonthDayInput("");
+                  setIsYearEditOpen(false);
+                }}
+                className="rounded border border-slate-300 px-2 py-1 text-xs"
+              >
                 解除
               </button>
             )}
