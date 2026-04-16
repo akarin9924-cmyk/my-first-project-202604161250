@@ -142,6 +142,12 @@ export default function TodoApp() {
     }
   };
 
+  const handleDueDateTextChange = (value: string) => {
+    // Accept only YYYY-MM-DD style input for stable scheduler behavior.
+    const normalized = value.replace(/[^\d-]/g, "").slice(0, 10);
+    setDueDate(normalized);
+  };
+
   const renderTodoCard = (todo: Todo) => {
     const suggested = suggestedIds.includes(todo.id);
     const overdue = isOverdue(todo.dueDate, todo.done);
@@ -252,9 +258,18 @@ export default function TodoApp() {
               type="date"
               value={dueDate}
               onChange={(event) => setDueDate(event.target.value)}
-              className="sr-only"
+              className="h-0 w-0 opacity-0"
+              tabIndex={-1}
+              aria-hidden="true"
             />
-            <span className="text-sm text-slate-600">{dueDate ? `期限: ${dueDate}` : "期限未設定"}</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="YYYY-MM-DD"
+              value={dueDate}
+              onChange={(event) => handleDueDateTextChange(event.target.value)}
+              className="min-h-11 flex-1 rounded-lg border border-slate-300 px-3 text-sm"
+            />
             {dueDate && (
               <button type="button" onClick={() => setDueDate("")} className="rounded border border-slate-300 px-2 py-1 text-xs">
                 解除
